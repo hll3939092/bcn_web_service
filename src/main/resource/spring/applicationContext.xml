@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+	   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
+
+    <mvc:annotation-driven/>
+
+    <context:component-scan base-package="uk.bacano.controller"></context:component-scan>
+
+    <context:property-placeholder location="classpath:/application.properties" ignore-unresolvable="true"/>
+
+    <mongo:repositories     base-package="uk.bacano.dao" />
+    <context:component-scan base-package="uk.bacano.service"/>
+    <context:component-scan base-package="uk.bacano.model"/>
+
+    <mongo:mongo-client credentials="${ddi.mongo.app.user}:${ddi.mongo.app.password}@${ddi.mongo.app.authenticationDatabase}" id="mongoClient" replica-set="${ddi.mongo.app.machine.one}:${ddi.mongo.app.port},${ddi.mongo.app.machine.two}:${ddi.mongo.app.port},${ddi.mongo.app.machine.three}:${ddi.mongo.app.port}">
+        <mongo:client-options connections-per-host="5"
+                              threads-allowed-to-block-for-connection-multiplier="10"
+                              connect-timeout="100000"
+                              max-wait-time="30000"
+                              socket-keep-alive="true"
+                              socket-timeout="1000000"
+                              write-concern="NORMAL"
+                              read-preference="PRIMARY_PREFERRED"/>
+    </mongo:mongo-client>
+
+    <mongo:db-factory dbname="${ddi.mongo.app.db}" port="${ddi.mongo.app.port}" mongo-ref="mongoClient"/>
+
+    <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+        <constructor-arg name="mongoDbFactory" ref="mongoDbFactory" />
+    </bean>
+
+
+</beans>
